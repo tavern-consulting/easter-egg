@@ -2,3 +2,4 @@ django
 gunicorn==18.0
 dj-static==0.0.5
 newrelic
+requests
