@@ -1,3 +1,4 @@
+import json
 import base64
 import os
 
@@ -9,20 +10,7 @@ import requests
 from easter_egg.models import split_image
 
 
-class EasterEggTestCase(TestCase):
-    def test_index_page_returns_200(self):
-        url = reverse('index')
-        r = self.client.get(url)
-        self.assertEqual(r.status_code, 200)
-
-
-class CoverageTestCase(TestCase):
-    def test(self):
-        from easter_egg import wsgi
-        assert wsgi
-
-
-class ImageSplitterTestCase(TestCase):
+class _HelperTestCase(TestCase):
     path_to_image = '/tmp/google_logo.png'
 
     def setUp(self):
@@ -38,6 +26,42 @@ class ImageSplitterTestCase(TestCase):
         with open(self.path_to_image, 'w') as f:
             f.write(self.content)
 
+
+class EasterEggTestCase(_HelperTestCase):
+    url = reverse('index')
+
+    def test_index_page_returns_200(self):
+        r = self.client.get(self.url)
+        self.assertEqual(r.status_code, 200)
+
+    def test_index_page_returns_json(self):
+        r = self.client.get(self.url)
+        self.assertEqual(
+            r['Content-Type'],
+            'application/json',
+        )
+
+    def test_index_page_returns_ten_pieces_in_a_list(self):
+        r = self.client.get(self.url)
+        response = json.loads(r.content)
+        self.assertEqual(len(response), 10)
+
+    def test_index_page_returns_split_up_image(self):
+        r = self.client.get(self.url)
+        response = json.loads(r.content)
+        self.assertEqual(
+            base64.b64decode(''.join(response)),
+            self.content,
+        )
+
+
+class CoverageTestCase(TestCase):
+    def test(self):
+        from easter_egg import wsgi
+        assert wsgi
+
+
+class ImageSplitterTestCase(_HelperTestCase):
     def test_N_is_1_returns_image(self):
         image_content = split_image(self.path_to_image, 1, 1)
         self.assertEqual(
