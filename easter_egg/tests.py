@@ -71,8 +71,6 @@ class ImageSplitterTestCase(TestCase):
             split_image(self.path_to_image, i, 1337)
             for i in range(1, 1338)
         ])
-        with open('a.png', 'w') as f:
-            f.write(base64.b64decode(image_content))
         self.assertEqual(
             base64.b64decode(image_content),
             self.content,
