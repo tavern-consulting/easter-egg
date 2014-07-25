@@ -1,0 +1,28 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Test Page</title>
+	<!-- Get jQuery -->
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="{% static 'js/jquery.konami.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $( window ).konami({
+            cheat: function() {
+                $.ajax('{% url "index" %}').success(function(data) {
+                    var src = data.join('');
+                    src = 'data:image/png;base64,' + src;
+                    var $image = $('<img>');
+                    $image.attr('src', src);
+
+                    $('body').append($image);
+                });
+            }
+        });
+    </script>
+</head> 
+<body>
+</body>
+</html>

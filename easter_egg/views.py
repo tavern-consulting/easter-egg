@@ -4,6 +4,7 @@ from tempfile import NamedTemporaryFile
 import requests
 
 from django.http import HttpResponse
+from django.shortcuts import render_to_response
 
 from easter_egg.models import split_image
 
@@ -24,3 +25,7 @@ def index(request):
         json.dumps(data),
         content_type='application/json',
     )
+
+
+def test(request):
+    return render_to_response('test.html', {})
