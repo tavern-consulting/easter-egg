@@ -116,7 +116,7 @@ class SleniumTestCase(_HelperTestCase, LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test(self):
+    def test_konomi_code_generates_image(self):
         self.browser.get(self.live_server_url + reverse('easter_egg_test'))
         keys = ''.join([
             Keys.UP,
