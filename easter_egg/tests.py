@@ -3,9 +3,11 @@ import base64
 import os
 
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, LiveServerTestCase
 
 import requests
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 from easter_egg.models import split_image
 
@@ -54,6 +56,10 @@ class EasterEggTestCase(_HelperTestCase):
             self.content,
         )
 
+    def test_test_page_returns_200(self):
+        r = self.client.get(reverse('easter_egg_test'))
+        self.assertEqual(r.status_code, 200)
+
 
 class CoverageTestCase(TestCase):
     def test(self):
@@ -98,4 +104,39 @@ class ImageSplitterTestCase(_HelperTestCase):
         self.assertEqual(
             base64.b64decode(image_content),
             self.content,
+        )
+
+
+class SleniumTestCase(_HelperTestCase, LiveServerTestCase):
+    def setUp(self):
+        super(SleniumTestCase, self).setUp()
+        self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(3)
+
+    def tearDown(self):
+        self.browser.quit()
+
+    def test(self):
+        self.browser.get(self.live_server_url + reverse('easter_egg_test'))
+        keys = ''.join([
+            Keys.UP,
+            Keys.UP,
+            Keys.DOWN,
+            Keys.DOWN,
+            Keys.LEFT,
+            Keys.RIGHT,
+            Keys.LEFT,
+            Keys.RIGHT,
+            'b',
+            'a',
+        ])
+        body = self.browser.find_element_by_tag_name('body')
+        body.send_keys(keys)
+        image_tag = self.browser.find_element_by_tag_name('img')
+        assert image_tag
+        image_data = image_tag.get_attribute('src')
+        image_data = image_data[len('data:image/png;base64,'):]
+        self.assertEqual(
+            self.content,
+            base64.b64decode(image_data),
         )
